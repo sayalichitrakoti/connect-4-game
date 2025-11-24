@@ -1,0 +1,33 @@
+version: "{build}"
+platform: x64
+image: Visual Studio 2017
+
+clone_folder: c:\datasets
+cache:
+  - C:\Users\appveyor\go
+
+environment:
+  GO111MODULE: on
+  GOBIN: c:\datasets
+
+build_script:
+  - cd PublicGitArchive\pga-create && go install && cd ..\..
+  - cd PublicGitArchive\pga && go install && cd ..\..
+  - 7z a pga-create.windows_amd64.zip pga-create.exe
+  - 7z a pga.windows_amd64.zip pga.exe
+
+artifacts:
+  - name: pga-create.windows_amd64.zip
+    path: pga-create.windows_amd64.zip
+  - name: pga.windows_amd64.zip
+    path: pga.windows_amd64.zip
+
+deploy:
+  release: $(APPVEYOR_REPO_TAG_NAME)
+  provider: GitHub
+  auth_token:
+    secure: 78zsH4q19DqcpdkwnYHQoe0BakBfv+LGu1W7mXuaBC9mS87+EuAj3+yTzJv4NEfI
+  artifact: pga-create.windows_amd64.zip,pga.windows_amd64.zip
+  on:
+    branch: master
+    appveyor_repo_tag: true
